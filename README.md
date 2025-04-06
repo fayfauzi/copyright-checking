@@ -112,3 +112,12 @@ http://localhost:5173
 
 - Simplicity and readability were prioritized for clarity.
 
+End result: 
+FE
+
+![image](https://github.com/user-attachments/assets/5df0a01a-cc5f-4e10-bc88-e0acd30c3cf3)
+
+BE
+
+![image](https://github.com/user-attachments/assets/630c3e35-6883-40ea-a367-55e8d475f988)
+
