@@ -1,65 +1,62 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const file = ref(null)   // Holds the selected file
-const status = ref('')   // Holds the upload status message
+const selectedFile = ref(null)
+const result = ref(null)
 
-// Handle file change
-const handleFileChange = (event) => {
-  const selectedFile = event.target.files[0]
-  if (selectedFile) {
-    file.value = selectedFile
-  }
+function handleFileChange(event) {
+  selectedFile.value = event.target.files[0]
+  result.value = null
 }
 
-// Handle file upload
-const uploadFile = async () => {
-  if (!file.value) return
-  
+async function uploadFile() {
+  if (!selectedFile.value) return
+
   const formData = new FormData()
-  formData.append('image', file.value)
+  formData.append('image', selectedFile.value)
 
   try {
-    // Send the file to the backend (Replace with your actual backend URL)
     const response = await fetch('http://localhost:5000/api/check-copyright', {
       method: 'POST',
       body: formData
     })
-    
-    const result = await response.json()
-    
-    if (response.ok) {
-      status.value = `Upload successful: ${result.result}`
-    } else {
-      status.value = `Error: ${result.result}`
-    }
+
+    const data = await response.json()
+    result.value = data
   } catch (error) {
-    status.value = `Upload failed: ${error.message}`
+    console.error('Error uploading file:', error)
+    result.value = { verdict: 'Error uploading file' }
   }
 }
 </script>
 
 <template>
-  <div id="app">
-    <h1>Copyright Checker</h1>
-    
-    <!-- File Upload Form -->
-    <input type="file" @change="handleFileChange" />
-    
-    <!-- Display File Information -->
-    <div v-if="file">
-      <p><strong>Selected File:</strong> {{ file.name }}</p>
-      <p><strong>Size:</strong> {{ file.size }} bytes</p>
-    </div>
+  <div class="upload-container">
+    <h2>Upload Image</h2>
+    <input type="file" @change="handleFileChange" accept="image/*" />
+    <button @click="uploadFile" :disabled="!selectedFile">Upload</button>
 
-    <!-- Upload Button -->
-    <button @click="uploadFile" :disabled="!file">Upload</button>
-    
-    <!-- Display Upload Status -->
-    <div v-if="status">{{ status }}</div>
+    <div v-if="result" class="result">
+      <p><strong>File ID:</strong> {{ result.file_id }}</p>
+      <p><strong>Verdict:</strong> {{ result.verdict }}</p>
+      <p><strong>Confidence:</strong> {{ result.confidence }}%</p>
+    </div>
   </div>
 </template>
 
 <style scoped>
+.upload-container {
+  padding: 20px;
+  border: 2px dashed #ccc;
+  max-width: 400px;
+  margin: auto;
+  border-radius: 8px;
+  text-align: center;
+}
 
+.result {
+  margin-top: 20px;
+  font-size: 1.1em;
+  color: #333;
+}
 </style>
